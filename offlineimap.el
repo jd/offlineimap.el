@@ -117,3 +117,5 @@
   (set (make-local-variable 'comint-buffer-maximum-size)
                             offlineimap-buffer-maximum-size)
   (font-lock-add-keywords nil offlineimap-mode-font-lock-keywords))
+
+(provide 'offlineimap)
