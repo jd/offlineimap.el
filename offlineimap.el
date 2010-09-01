@@ -82,14 +82,11 @@
     ("^Copy message .*$" . 'offlineimap-copy-message-face))
   "Faces used to highlight things in OfflineIMAP mode.")
 
-(defun offlineimap-get-buffer ()
+(defun offlineimap-make-buffer ()
   "Get the offlineimap buffer."
-  (let ((buffer (get-buffer offlineimap-buffer-name)))
-    (unless buffer
-      (let ((buffer (get-buffer-create offlineimap-buffer-name)))
-        (with-current-buffer buffer
-          (offlineimap-mode))
-        buffer))
+  (let ((buffer (get-buffer-create offlineimap-buffer-name)))
+    (with-current-buffer buffer
+      (offlineimap-mode))
     buffer))
 
 ;;;###autoload
@@ -97,7 +94,7 @@
   "Start OfflineIMAP."
   (interactive)
   (comint-exec
-   (offlineimap-get-buffer)
+   (offlineimap-make-buffer)
    "offlineimap"
    shell-file-name nil
    `("-c" ,offlineimap-command)))
@@ -110,7 +107,7 @@
 (defun offlineimap-resync ()
   "Send a USR1 signal to OfflineIMAP to force accounts synchronization."
   (interactive)
-  (signal-process (get-buffer-process (offlineimap-get-buffer) 'SIGUSR1))
+  (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name) 'SIGUSR1))
 
 (define-derived-mode offlineimap-mode comint-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
