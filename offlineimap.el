@@ -84,9 +84,12 @@
 
 (defun offlineimap-get-buffer ()
   "Get the offlineimap buffer."
-  (let ((buffer (get-buffer-create offlineimap-buffer-name)))
-    (with-current-buffer buffer
-      (offlineimap-mode))
+  (let ((buffer (get-buffer offlineimap-buffer-name)))
+    (unless buffer
+      (let ((buffer (get-buffer-create offlineimap-buffer-name)))
+        (with-current-buffer buffer
+          (offlineimap-mode))
+        buffer))
     buffer))
 
 ;;;###autoload
@@ -107,7 +110,7 @@
 (defun offlineimap-resync ()
   "Send a USR1 signal to OfflineIMAP to force accounts synchronization."
   (interactive)
-  (signal-process (get-buffer-process (current-buffer)) 'SIGUSR1))
+  (signal-process (get-buffer-process (offlineimap-get-buffer) 'SIGUSR1))
 
 (define-derived-mode offlineimap-mode comint-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
