@@ -114,6 +114,6 @@
   :group 'comm
   (set (make-local-variable 'comint-output-filter-functions)
        '(comint-postoutput-scroll-to-bottom comint-truncate-buffer))
-  (set (make-local-variable 'comint-buffer-maximum-size
-                            offlineimap-buffer-maximum-size))
+  (set (make-local-variable 'comint-buffer-maximum-size)
+                            offlineimap-buffer-maximum-size)
   (font-lock-add-keywords nil offlineimap-mode-font-lock-keywords))
