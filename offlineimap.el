@@ -107,7 +107,7 @@
 (defun offlineimap-resync ()
   "Send a USR1 signal to OfflineIMAP to force accounts synchronization."
   (interactive)
-  (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name) 'SIGUSR1))
+  (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name) 'SIGUSR1)))
 
 (define-derived-mode offlineimap-mode comint-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
