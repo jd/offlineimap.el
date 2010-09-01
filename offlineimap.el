@@ -23,6 +23,8 @@
 ;;; Commentary:
 ;; M-x offlineimap
 
+(require 'comint)
+
 (defgroup offlineimap nil
   "Run OfflineIMAP."
   :group 'comm)
