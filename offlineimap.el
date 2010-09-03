@@ -131,17 +131,35 @@ OfflineIMAP status should be displayed in the mode line."
         (propertize text 'face face-sym)
       text)))
 
+(defun offlineimap-switch-to-buffer (e)
+  "Go to OfflineIMAP buffer."
+  (interactive "e")
+  (save-selected-window
+    (select-window
+     (posn-window (event-start e)))
+    (switch-to-buffer (get-buffer offlineimap-buffer-name))))
+
+(defvar offlineimap-mode-line-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (vector 'mode-line 'mouse-2) 'offlineimap-switch-to-buffer)
+    map)
+  "Keymap used in mode line.")
+
 (defun offlineimap-update-mode-line (process)
   "Update mode line information about OfflineIMAP PROCESS."
   (setq offlineimap-mode-line-string
-        (concat " [OfflineIMAP: "
-                (let ((status (process-status process)))
+        (propertize
+         (concat " [OfflineIMAP: "
+                 (let ((status (process-status process)))
                   (if (eq status 'run)
                       (let ((msg-type (process-get process :last-msg-type))
                             (action (process-get process :last-action)))
                         (offlineimap-propertize-face msg-type action action))
                     (propertize (symbol-name status) 'face 'offlineimap-error-face)))
-                "]"))
+                 "]")
+         'mouse-face 'mode-line-highlight
+         'help-echo "mouse-2: Go to OfflineIMAP buffer"
+         'local-map offlineimap-mode-line-map))
   (force-mode-line-update))
 
 (defun offlineimap-insert (buffer text)
