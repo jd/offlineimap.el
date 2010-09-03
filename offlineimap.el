@@ -45,7 +45,9 @@
   :group 'offlineimap
   :type 'integer)
 
-(defcustom offlineimap-enable-mode-line-p '(eq major-mode 'gnus-group-mode)
+(defcustom offlineimap-enable-mode-line-p '(member
+                                            major-mode
+                                            '(offlineimap-mode gnus-group-mode))
   "Whether enable OfflineIMAP mode line status display.
 This form is evaluated and its return value determines if the
 OfflineIMAP status should be displayed in the mode line."
