@@ -144,6 +144,15 @@ OfflineIMAP status should be displayed in the mode line."
                 "]"))
   (force-mode-line-update))
 
+(defun offlineimap-insert (buffer text)
+  "Insert TEXT in PROCESS buffer."
+  (let ((buffer (process-buffer process)))
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (goto-char (point-max))
+        (insert text)
+        (set-marker (process-mark process) (point))))))
+
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
   (let* ((msg-data (split-string msg ":"))
@@ -153,12 +162,11 @@ OfflineIMAP status should be displayed in the mode line."
          (buffer (process-buffer process)))
     (when (buffer-live-p buffer)
       (with-current-buffer buffer
-        (goto-char (point-max))
-        (insert (offlineimap-propertize-face
-                   msg-type
-                   action
-                   (concat thread-name "::" action "\n")))
-        (set-marker (process-mark process) (point))
+        (offlineimap-insert process
+                            (offlineimap-propertize-face
+                             msg-type
+                             action
+                             (concat thread-name "::" action "\n")))
         (let ((comint-buffer-maximum-size offlineimap-buffer-maximum-size))
           (comint-truncate-buffer))))
     (process-put process :last-msg-type msg-type)
@@ -167,6 +175,7 @@ OfflineIMAP status should be displayed in the mode line."
 
 (defun offlineimap-process-sentinel (process state)
   "Monitor STATE change of PROCESS."
+  (offlineimap-insert process (concat "*** Process " (process-name process) " " state))
   (offlineimap-update-mode-line process))
 
 (defun offlineimap-mode-line ()
@@ -191,7 +200,7 @@ OfflineIMAP status should be displayed in the mode line."
 (defun offlineimap-quit ()
   "Quit OfflineIMAP."
   (interactive)
-  (kill-buffer (current-buffer)))
+  (kill-buffer (get-buffer offlineimap-buffer-name)))
 
 (defun offlineimap-resync ()
   "Send a USR1 signal to OfflineIMAP to force accounts synchronization."
