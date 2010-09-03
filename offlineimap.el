@@ -47,7 +47,9 @@
 
 (defcustom offlineimap-enable-mode-line-p '(eq major-mode 'gnus-group-mode)
   "Whether enable OfflineIMAP mode line status display.
-This form is evaluated and its return value determines if the OfflineIMAP status should be displayed in the mode line.")
+This form is evaluated and its return value determines if the
+OfflineIMAP status should be displayed in the mode line."
+  :group 'offlineimap)
 
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
@@ -104,7 +106,7 @@ This form is evaluated and its return value determines if the OfflineIMAP status
   '((t (:foreground "pink")))
   "Face used to highlight deletingflags lines.")
 
-(defface offlineimap-stop-face
+(defface offlineimap-error-face
   '((t (:foreground "red" :weight bold)))
   "Face used to highlight status when offlineimap is stopped.")
 
@@ -127,18 +129,17 @@ This form is evaluated and its return value determines if the OfflineIMAP status
         (propertize text 'face face-sym)
       text)))
 
-(defun offlineimap-update-mode-line ()
-  "Update mode line information about OfflineIMAP."
-  (let* ((buffer (get-buffer offlineimap-buffer-name))
-         (process (get-buffer-process buffer)))
-    (setq offlineimap-mode-line-string
-          (concat " [OfflineIMAP: "
-                  (if process
+(defun offlineimap-update-mode-line (process)
+  "Update mode line information about OfflineIMAP PROCESS."
+  (setq offlineimap-mode-line-string
+        (concat " [OfflineIMAP: "
+                (let ((status (process-status process)))
+                  (if (eq status 'run)
                       (let ((msg-type (process-get process :last-msg-type))
                             (action (process-get process :last-action)))
                         (offlineimap-propertize-face msg-type action action))
-                    (propertize "no process" 'face 'offlineimap-stop-face))
-                  "]")))
+                    (propertize (symbol-name status) 'face 'offlineimap-error-face)))
+                "]"))
   (force-mode-line-update))
 
 (defun offlineimap-process-filter (process msg)
@@ -160,11 +161,11 @@ This form is evaluated and its return value determines if the OfflineIMAP status
           (comint-truncate-buffer))))
     (process-put process :last-msg-type msg-type)
     (process-put process :last-action action))
-  (offlineimap-update-mode-line))
+  (offlineimap-update-mode-line process))
 
 (defun offlineimap-process-sentinel (process state)
   "Monitor STATE change of PROCESS."
-  (offlineimap-update-mode-line))
+  (offlineimap-update-mode-line process))
 
 (defun offlineimap-mode-line ()
   "Return a string to display in mode line."
