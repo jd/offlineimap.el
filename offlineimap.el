@@ -176,12 +176,14 @@ OfflineIMAP status should be displayed in the mode line."
 (defun offlineimap ()
   "Start OfflineIMAP."
   (interactive)
-  (let ((process (start-process-shell-command
-                  "offlineimap"
-                  (offlineimap-make-buffer)
-                  offlineimap-command)))
-    (set-process-filter process 'offlineimap-process-filter)
-    (set-process-sentinel process 'offlineimap-process-sentinel))
+  (let* ((buffer (offlineimap-make-buffer)))
+    (unless (get-buffer-process buffer)
+      (let ((process (start-process-shell-command
+                      "offlineimap"
+                      buffer
+                      offlineimap-command)))
+        (set-process-filter process 'offlineimap-process-filter)
+        (set-process-sentinel process 'offlineimap-process-sentinel))))
   (add-to-list 'global-mode-string '(:eval (offlineimap-mode-line))))
 
 (defun offlineimap-quit ()
