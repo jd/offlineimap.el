@@ -45,6 +45,10 @@
   :group 'offlineimap
   :type 'integer)
 
+(defcustom offlineimap-enable-mode-line-p '(eq major-mode 'gnus-group-mode)
+  "Whether enable OfflineIMAP mode line status display.
+This form is evaluated and its return value determines if the OfflineIMAP status should be displayed in the mode line.")
+
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
@@ -162,6 +166,11 @@
   "Monitor STATE change of PROCESS."
   (offlineimap-update-mode-line))
 
+(defun offlineimap-mode-line ()
+  "Return a string to display in mode line."
+  (when (eval offlineimap-enable-mode-line-p)
+    offlineimap-mode-line-string))
+
 ;;;###autoload
 (defun offlineimap ()
   "Start OfflineIMAP."
@@ -172,7 +181,7 @@
                   offlineimap-command)))
     (set-process-filter process 'offlineimap-process-filter)
     (set-process-sentinel process 'offlineimap-process-sentinel))
-  (add-to-list 'global-mode-string 'offlineimap-mode-line-string t))
+  (add-to-list 'global-mode-string '(:eval (offlineimap-mode-line))))
 
 (defun offlineimap-quit ()
   "Quit OfflineIMAP."
