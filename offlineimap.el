@@ -184,7 +184,7 @@ OfflineIMAP status should be displayed in the mode line."
                       offlineimap-command)))
         (set-process-filter process 'offlineimap-process-filter)
         (set-process-sentinel process 'offlineimap-process-sentinel))))
-  (add-to-list 'global-mode-string '(:eval (offlineimap-mode-line))))
+  (add-to-list 'global-mode-string '(:eval (offlineimap-mode-line)) t))
 
 (defun offlineimap-quit ()
   "Quit OfflineIMAP."
