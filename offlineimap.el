@@ -23,6 +23,7 @@
 ;;; Commentary:
 ;; M-x offlineimap
 
+;; We need comint for `comint-truncate-buffer'
 (require 'comint)
 
 (defgroup offlineimap nil
@@ -34,7 +35,7 @@
   :group 'offlineimap
   :type 'string)
 
-(defcustom offlineimap-command "offlineimap -u Noninteractive.Basic"
+(defcustom offlineimap-command "offlineimap -u Machine.MachineUI"
   "Command to run to launch OfflineIMAP."
   :group 'offlineimap
   :type 'string)
@@ -51,38 +52,62 @@
     map)
   "Keymap for offlineimap-mode.")
 
-(defface offlineimap-syncing-face
-  '((t (:foreground "cyan")))
-  "Face used to highlight syncing lines.")
+(defface offlineimap-msg-acct-face
+  '((t (:foreground "purple")))
+  "Face used to highlight acct lines.")
 
-(defface offlineimap-scanning-face
-  '((t (:foreground "green")))
-  "Face used to highlight scanning lines.")
+(defface offlineimap-msg-connecting-face
+  '((t (:foreground "gray")))
+  "Face used to highlight connecting lines.")
 
-(defface offlineimap-copying-face
+(defface offlineimap-msg-syncfolders-face
   '((t (:foreground "blue")))
-  "Face used to highlight copying lines.")
+  "Face used to highlight syncfolders lines.")
 
-(defface offlineimap-copy-message-face
-  '((t (:foreground "yellow")))
-  "Face used to highlight message copy lines.")
+(defface offlineimap-msg-syncingfolders-face
+  '((t (:foreground "cyan")))
+  "Face used to highlight syncingfolders lines.")
 
-(defface offlineimap-adding-flags-face
-  '((t (:foreground "yellow" :weight bold)))
-  "Face used to highlight flags adding lines.")
+(defface offlineimap-msg-skippingfolder-face
+  '((t (:foreground "cyan")))
+  "Face used to highlight skippingfolder lines.")
 
-(defface offlineimap-next-sync-face
+(defface offlineimap-msg-loadmessagelist-face
+  '((t (:foreground "green")))
+  "Face used to highlight loadmessagelist lines.")
+
+(defface offlineimap-msg-syncingmessages-face
+  '((t (:foreground "blue")))
+  "Face used to highlight syncingmessages lines.")
+
+(defface offlineimap-msg-copyingmessage-face
+  '((t (:foreground "orange")))
+  "Face used to highlight copyingmessage lines.")
+
+(defface offlineimap-msg-deletingmessages-face
   '((t (:foreground "red")))
-  "Face used to highlight next sync lines.")
+  "Face used to highlight deletingmessages lines.")
 
-(defvar offlineimap-mode-font-lock-keywords
-  '(("^Syncing .*$" . 'offlineimap-syncing-face)
-    ("^Scanning .*$" . 'offlineimap-scanning-face)
-    ("^Copying .*$" . 'offlineimap-copying-face)
-    ("^Adding flags .*$" . 'offlineimap-adding-flags-face)
-    ("^Next sync .*$" . 'offlineimap-next-sync-face)
-    ("^Copy message .*$" . 'offlineimap-copy-message-face))
-  "Faces used to highlight things in OfflineIMAP mode.")
+(defface offlineimap-msg-deletingmessage-face
+  '((t (:foreground "red")))
+  "Face used to highlight deletingmessage lines.")
+
+(defface offlineimap-msg-addingflags-face
+  '((t (:foreground "yellow")))
+  "Face used to highlight addingflags lines.")
+
+(defface offlineimap-msg-deletingflags-face
+  '((t (:foreground "pink")))
+  "Face used to highlight deletingflags lines.")
+
+(defface offlineimap-stop-face
+  '((t (:foreground "red" :weight bold)))
+  "Face used to highlight status when offlineimap is stopped.")
+
+(defvar offlineimap-mode-line-string nil
+  "Variable showed in mode line to display OfflineIMAP status.")
+
+(put 'offlineimap-mode-line-string 'risky-local-variable t) ; allow properties
 
 (defun offlineimap-make-buffer ()
   "Get the offlineimap buffer."
@@ -91,15 +116,63 @@
       (offlineimap-mode))
     buffer))
 
+(defun offlineimap-propertize-face (msg-type action text)
+  "Propertize TEXT with correct face according to MSG-TYPE and ACTION."
+  (let* ((face-sym (intern (concat "offlineimap-" msg-type "-" action "-face"))))
+    (if (facep face-sym)
+        (propertize text 'face face-sym)
+      text)))
+
+(defun offlineimap-update-mode-line ()
+  "Update mode line information about OfflineIMAP."
+  (let* ((buffer (get-buffer offlineimap-buffer-name))
+         (process (get-buffer-process buffer)))
+    (setq offlineimap-mode-line-string
+          (concat " [OfflineIMAP: "
+                  (if process
+                      (let ((msg-type (process-get process :last-msg-type))
+                            (action (process-get process :last-action)))
+                        (offlineimap-propertize-face msg-type action action))
+                    (propertize "no process" 'face 'offlineimap-stop-face))
+                  "]")))
+  (force-mode-line-update))
+
+(defun offlineimap-process-filter (process msg)
+  "Filter PROCESS output MSG."
+  (let* ((msg-data (split-string msg ":"))
+         (msg-type (nth 0 msg-data))
+         (action (nth 1 msg-data))
+         (thread-name (nth 2 msg-data))
+         (buffer (process-buffer process)))
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (goto-char (point-max))
+        (insert (offlineimap-propertize-face
+                   msg-type
+                   action
+                   (concat thread-name "::" action "\n")))
+        (set-marker (process-mark process) (point))
+        (let ((comint-buffer-maximum-size offlineimap-buffer-maximum-size))
+          (comint-truncate-buffer))))
+    (process-put process :last-msg-type msg-type)
+    (process-put process :last-action action))
+  (offlineimap-update-mode-line))
+
+(defun offlineimap-process-sentinel (process state)
+  "Monitor STATE change of PROCESS."
+  (offlineimap-update-mode-line))
+
 ;;;###autoload
 (defun offlineimap ()
   "Start OfflineIMAP."
   (interactive)
-  (comint-exec
-   (offlineimap-make-buffer)
-   "offlineimap"
-   shell-file-name nil
-   `("-c" ,offlineimap-command)))
+  (let ((process (start-process-shell-command
+                  "offlineimap"
+                  (offlineimap-make-buffer)
+                  offlineimap-command)))
+    (set-process-filter process 'offlineimap-process-filter)
+    (set-process-sentinel process 'offlineimap-process-sentinel))
+  (add-to-list 'global-mode-string 'offlineimap-mode-line-string t))
 
 (defun offlineimap-quit ()
   "Quit OfflineIMAP."
@@ -111,13 +184,8 @@
   (interactive)
   (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) 'SIGUSR1))
 
-(define-derived-mode offlineimap-mode comint-mode "OfflineIMAP"
+(define-derived-mode offlineimap-mode fundamental-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
-  :group 'comm
-  (set (make-local-variable 'comint-output-filter-functions)
-       '(comint-postoutput-scroll-to-bottom comint-truncate-buffer))
-  (set (make-local-variable 'comint-buffer-maximum-size)
-                            offlineimap-buffer-maximum-size)
-  (font-lock-add-keywords nil offlineimap-mode-font-lock-keywords))
+  :group 'comm)
 
 (provide 'offlineimap)
