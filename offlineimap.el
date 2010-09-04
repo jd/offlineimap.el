@@ -167,9 +167,17 @@ OfflineIMAP status should be displayed in the mode line."
   (let ((buffer (process-buffer process)))
     (when (buffer-live-p buffer)
       (with-current-buffer buffer
-        (goto-char (point-max))
-        (insert text)
-        (set-marker (process-mark process) (point))))))
+        ;; If the cursor is at the end, append text like we would be in
+        ;; "tail".
+        (if (eq (point) (point-max))
+            (progn
+              (insert text)
+              (set-marker (process-mark process) (point)))
+          ;; But if not, let the cursor where it is, so `save-excursion'.
+          (save-excursion
+            (goto-char (point-max))
+            (insert text)
+            (set-marker (process-mark process) (point))))))))
 
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
