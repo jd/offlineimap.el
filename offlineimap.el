@@ -53,6 +53,17 @@ This form is evaluated and its return value determines if the
 OfflineIMAP status should be displayed in the mode line."
   :group 'offlineimap)
 
+(defcustom offlineimap-mode-line-style 'symbol
+  "Set what to display in mode-line.
+If set to 'symbol, it will only display
+`offlineimap-mode-line-symbol' with different colors based on
+what OfflineIMAP is doing. If set to 'text, it will display the
+action as a text in color instead of a single symbol.")
+
+(defcustom offlineimap-mode-line-symbol "✉"
+  "Symbol used to display OfflineIMAP status in mode-line.
+This is used when `offlineimap-mode-line-style' is set to 'symbol.")
+
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
@@ -151,10 +162,13 @@ OfflineIMAP status should be displayed in the mode line."
         (propertize
          (concat " [OfflineIMAP: "
                  (let ((status (process-status process)))
-                  (if (eq status 'run)
-                      (let ((msg-type (process-get process :last-msg-type))
-                            (action (process-get process :last-action)))
-                        (offlineimap-propertize-face msg-type action action))
+                   (if (eq status 'run)
+                       (let ((msg-type (process-get process :last-msg-type))
+                             (action (process-get process :last-action)))
+                         (offlineimap-propertize-face msg-type action
+                                                      (if (eq offlineimap-mode-line-style 'text)
+                                                          action
+                                                        offlineimap-mode-line-symbol)))
                     (propertize (symbol-name status) 'face 'offlineimap-error-face)))
                  "]")
          'mouse-face 'mode-line-highlight
