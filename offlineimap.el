@@ -181,17 +181,18 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol.")
   (let ((buffer (process-buffer process)))
     (when (buffer-live-p buffer)
       (with-current-buffer buffer
-        ;; If the cursor is at the end, append text like we would be in
-        ;; "tail".
-        (if (eq (point) (point-max))
-            (progn
+        (let ((inhibit-read-only t))
+          ;; If the cursor is at the end, append text like we would be in
+          ;; "tail".
+          (if (eq (point) (point-max))
+              (progn
+                (insert text)
+                (set-marker (process-mark process) (point)))
+            ;; But if not, let the cursor where it is, so `save-excursion'.
+            (save-excursion
+              (goto-char (point-max))
               (insert text)
-              (set-marker (process-mark process) (point)))
-          ;; But if not, let the cursor where it is, so `save-excursion'.
-          (save-excursion
-            (goto-char (point-max))
-            (insert text)
-            (set-marker (process-mark process) (point))))))))
+              (set-marker (process-mark process) (point)))))))))
 
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
@@ -249,6 +250,8 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol.")
 
 (define-derived-mode offlineimap-mode fundamental-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
-  :group 'comm)
+  :group 'comm
+  (setq buffer-read-only t)
+  (setq buffer-undo-list t))
 
 (provide 'offlineimap)
