@@ -64,6 +64,11 @@ action as a text in color instead of a single symbol.")
   "Symbol used to display OfflineIMAP status in mode-line.
 This is used when `offlineimap-mode-line-style' is set to 'symbol.")
 
+(defcustom offlineimap-timestamp nil
+  "Timestamp to add at the beginning of each OffsyncIMAP line."
+  :type 'string
+  :group 'offlinemap)
+
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
@@ -186,11 +191,15 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol.")
           ;; "tail".
           (if (eq (point) (point-max))
               (progn
+                (when offlineimap-timestamp
+                  (insert (format-time-string offlineimap-timestamp)))
                 (insert text)
                 (set-marker (process-mark process) (point)))
             ;; But if not, let the cursor where it is, so `save-excursion'.
             (save-excursion
               (goto-char (point-max))
+              (when offlineimap-timestamp
+                (insert (format-time-string offlineimap-timestamp)))
               (insert text)
               (set-marker (process-mark process) (point)))))))))
 
