@@ -58,11 +58,16 @@ OfflineIMAP status should be displayed in the mode line."
 If set to 'symbol, it will only display
 `offlineimap-mode-line-symbol' with different colors based on
 what OfflineIMAP is doing. If set to 'text, it will display the
-action as a text in color instead of a single symbol.")
+action as a text in color instead of a single symbol."
+  :group 'offlineimap
+  :type '(choice (const :tag "Symbol" symbol)
+                 (const :tag "Action text" text)))
 
 (defcustom offlineimap-mode-line-symbol "✉"
   "Symbol used to display OfflineIMAP status in mode-line.
-This is used when `offlineimap-mode-line-style' is set to 'symbol.")
+This is used when `offlineimap-mode-line-style' is set to 'symbol."
+  :group 'offlineimap
+  :type 'string)
 
 (defcustom offlineimap-timestamp nil
   "Timestamp to add at the beginning of each OffsyncIMAP line."
@@ -78,58 +83,72 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol.")
 
 (defface offlineimap-msg-acct-face
   '((t (:foreground "purple")))
-  "Face used to highlight acct lines.")
+  "Face used to highlight acct lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-connecting-face
   '((t (:foreground "gray")))
-  "Face used to highlight connecting lines.")
+  "Face used to highlight connecting lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-syncfolders-face
   '((t (:foreground "blue")))
-  "Face used to highlight syncfolders lines.")
+  "Face used to highlight syncfolders lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-syncingfolders-face
   '((t (:foreground "cyan")))
-  "Face used to highlight syncingfolders lines.")
+  "Face used to highlight syncingfolders lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-skippingfolder-face
   '((t (:foreground "cyan")))
-  "Face used to highlight skippingfolder lines.")
+  "Face used to highlight skippingfolder lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-loadmessagelist-face
   '((t (:foreground "green")))
-  "Face used to highlight loadmessagelist lines.")
+  "Face used to highlight loadmessagelist lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-syncingmessages-face
   '((t (:foreground "blue")))
-  "Face used to highlight syncingmessages lines.")
+  "Face used to highlight syncingmessages lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-copyingmessage-face
   '((t (:foreground "orange")))
-  "Face used to highlight copyingmessage lines.")
+  "Face used to highlight copyingmessage lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-deletingmessages-face
   '((t (:foreground "red")))
-  "Face used to highlight deletingmessages lines.")
+  "Face used to highlight deletingmessages lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-deletingmessage-face
   '((t (:foreground "red")))
-  "Face used to highlight deletingmessage lines.")
+  "Face used to highlight deletingmessage lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-addingflags-face
   '((t (:foreground "yellow")))
-  "Face used to highlight addingflags lines.")
+  "Face used to highlight addingflags lines."
+  :group 'offlineimap)
 
 (defface offlineimap-msg-deletingflags-face
   '((t (:foreground "pink")))
-  "Face used to highlight deletingflags lines.")
+  "Face used to highlight deletingflags lines."
+  :group 'offlineimap)
 
 (defface offlineimap-error-face
   '((t (:foreground "red" :weight bold)))
-  "Face used to highlight status when offlineimap is stopped.")
+  "Face used to highlight status when offlineimap is stopped."
+  :group 'offlineimap)
 
 (defvar offlineimap-mode-line-string nil
-  "Variable showed in mode line to display OfflineIMAP status.")
+  "Variable showed in mode line to display OfflineIMAP status."
+  :group 'offlineimap)
 
 (put 'offlineimap-mode-line-string 'risky-local-variable t) ; allow properties
 
