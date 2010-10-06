@@ -147,8 +147,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   :group 'offlineimap)
 
 (defvar offlineimap-mode-line-string nil
-  "Variable showed in mode line to display OfflineIMAP status."
-  :group 'offlineimap)
+  "Variable showed in mode line to display OfflineIMAP status.")
 
 (put 'offlineimap-mode-line-string 'risky-local-variable t) ; allow properties
 
