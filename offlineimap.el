@@ -78,6 +78,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
     (define-key map (kbd "g") 'offlineimap-resync)
+    (define-key map (kbd "K") 'offlineimap-kill)
     map)
   "Keymap for offlineimap-mode.")
 
@@ -274,6 +275,11 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   "Send a USR1 signal to OfflineIMAP to force accounts synchronization."
   (interactive)
   (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) 'SIGUSR1))
+
+(defun offlineimap-kill ()
+  "Send a TERM signal to OfflineIMAP."
+  (interactive)
+  (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) 'SIGTERM))
 
 (define-derived-mode offlineimap-mode fundamental-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
