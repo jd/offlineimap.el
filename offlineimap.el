@@ -74,6 +74,11 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   :type 'string
   :group 'offlinemap)
 
+(defcustom offlineimap-event-hooks nil
+  "Hooks run when OfflineIMAP state changes."
+  :type 'hook
+  :group 'offlineimap)
+
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
@@ -239,13 +244,15 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
         (let ((comint-buffer-maximum-size offlineimap-buffer-maximum-size))
           (comint-truncate-buffer))))
     (process-put process :last-msg-type msg-type)
-    (process-put process :last-action action))
-  (offlineimap-update-mode-line process))
+    (process-put process :last-action action)
+    (offlineimap-update-mode-line process)
+    (run-hook-with-args 'offlineimap-event-hooks msg-type action)))
 
 (defun offlineimap-process-sentinel (process state)
   "Monitor STATE change of PROCESS."
   (offlineimap-insert process (concat "*** Process " (process-name process) " " state))
-  (offlineimap-update-mode-line process))
+  (offlineimap-update-mode-line process)
+  (run-hook-with-args 'offlineimap-event-hooks state))
 
 (defun offlineimap-mode-line ()
   "Return a string to display in mode line."
