@@ -205,7 +205,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
          'local-map offlineimap-mode-line-map))
   (force-mode-line-update))
 
-(defun offlineimap-insert (buffer text)
+(defun offlineimap-insert (process text)
   "Insert TEXT in PROCESS buffer."
   (let ((buffer (process-buffer process)))
     (when (buffer-live-p buffer)
