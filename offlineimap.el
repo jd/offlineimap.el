@@ -72,7 +72,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
 (defcustom offlineimap-timestamp nil
   "Timestamp to add at the beginning of each OffsyncIMAP line."
   :type 'string
-  :group 'offlinemap)
+  :group 'offlineimap)
 
 (defcustom offlineimap-event-hooks nil
   "Hooks run when OfflineIMAP state changes."
