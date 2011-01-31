@@ -229,24 +229,25 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
 
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
-  (let* ((msg-data (split-string msg ":"))
-         (msg-type (nth 0 msg-data))
-         (action (nth 1 msg-data))
-         (thread-name (nth 2 msg-data))
-         (buffer (process-buffer process)))
-    (when (buffer-live-p buffer)
-      (with-current-buffer buffer
-        (offlineimap-insert process
-                            (offlineimap-propertize-face
-                             msg-type
-                             action
-                             (concat thread-name "::" action "\n")))
-        (let ((comint-buffer-maximum-size offlineimap-buffer-maximum-size))
-          (comint-truncate-buffer))))
-    (process-put process :last-msg-type msg-type)
-    (process-put process :last-action action)
-    (offlineimap-update-mode-line process)
-    (run-hook-with-args 'offlineimap-event-hooks msg-type action)))
+  (dolist (msg-line (nbutlast (split-string msg "[\n\r]+")))
+    (let* ((msg-data (split-string (car msg-lines) ":"))
+           (msg-type (nth 0 msg-data))
+           (action (nth 1 msg-data))
+           (thread-name (nth 2 msg-data))
+           (buffer (process-buffer process)))
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (offlineimap-insert process
+                              (offlineimap-propertize-face
+                               msg-type
+                               action
+                               (concat thread-name "::" action "\n")))
+          (let ((comint-buffer-maximum-size offlineimap-buffer-maximum-size))
+            (comint-truncate-buffer))))
+      (process-put process :last-msg-type msg-type)
+      (process-put process :last-action action)
+      (offlineimap-update-mode-line process)
+      (run-hook-with-args 'offlineimap-event-hooks msg-type action))))
 
 (defun offlineimap-process-sentinel (process state)
   "Monitor STATE change of PROCESS."
