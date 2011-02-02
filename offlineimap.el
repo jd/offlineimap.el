@@ -230,7 +230,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
   (dolist (msg-line (nbutlast (split-string msg "[\n\r]+")))
-    (let* ((msg-data (split-string (car msg-lines) ":"))
+    (let* ((msg-data (split-string msg-line ":"))
            (msg-type (nth 0 msg-data))
            (action (nth 1 msg-data))
            (thread-name (nth 2 msg-data))
