@@ -286,10 +286,11 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   (interactive)
   (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) 'SIGUSR1))
 
-(defun offlineimap-kill ()
+(defun offlineimap-kill (&optional arg)
   "Send a TERM signal to OfflineIMAP."
-  (interactive)
-  (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) 'SIGTERM))
+  (interactive "P")
+  (let ((sig (if arg 'SIGKILL 'SIGTERM)))
+    (signal-process (get-buffer-process (get-buffer offlineimap-buffer-name)) sig)))
 
 (define-derived-mode offlineimap-mode fundamental-mode "OfflineIMAP"
   "A major mode for OfflineIMAP interaction."
