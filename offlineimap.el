@@ -299,3 +299,5 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   (setq buffer-undo-list t))
 
 (provide 'offlineimap)
+
+;;; offlineimap.el ends here
