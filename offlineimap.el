@@ -71,6 +71,11 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   :group 'offlineimap
   :type 'string)
 
+(defcustom offlineimap-mode-line-text "OfflineIMAP: "
+  "Text used to display OfflineIMAP status in mode-line."
+  :group 'offlineimap
+  :type 'string)
+
 (defcustom offlineimap-timestamp nil
   "Timestamp to add at the beginning of each OffsyncIMAP line."
   :type 'string
@@ -191,7 +196,7 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
   "Update mode line information about OfflineIMAP PROCESS."
   (setq offlineimap-mode-line-string
         (propertize
-         (concat " [OfflineIMAP: "
+         (concat " [" offlineimap-mode-line-text
                  (let ((status (process-status process)))
                    (if (eq status 'run)
                        (let ((msg-type (process-get process :last-msg-type))
