@@ -66,13 +66,19 @@ action as a text in color instead of a single symbol."
                  (const :tag "Action text" text)))
 
 (defcustom offlineimap-mode-line-symbols '((run . "✉")
-                                           (exit . "×")
-                                           (signal . "⚑"))
+                                           (stop .  "↻")
+                                           (exit .  "×")
+                                           (signal . "⚑")
+                                           (open .  "⊙")
+                                           (listen . "⌥")
+                                           (closed . "●")
+                                           (connect . "…")
+                                           (failed . "⌁"))
   "Symbols used to display OfflineIMAP status in mode-line.
 These are used when `offlineimap-mode-line-style' is set to
 `symbol'."
   :group 'offlineimap
-  :type '(repeat (cons :tag "Use symbol for signal" (symbol :tag "Signal") (string :tag "Symbol"))))
+  :type '(repeat (cons :tag "Mode line symbol" (symbol :tag "Signal") (string :tag "Symbol"))))
 
 (defcustom offlineimap-mode-line-text "OfflineIMAP: "
   "Text used to display OfflineIMAP status in mode-line."
