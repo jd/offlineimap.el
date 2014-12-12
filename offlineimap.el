@@ -65,11 +65,13 @@ action as a text in color instead of a single symbol."
   :type '(choice (const :tag "Symbol" symbol)
                  (const :tag "Action text" text)))
 
-(defcustom offlineimap-mode-line-symbol "✉"
-  "Symbol used to display OfflineIMAP status in mode-line.
-This is used when `offlineimap-mode-line-style' is set to 'symbol."
+(defcustom offlineimap-mode-line-symbols '((run . "✉")
+                                           (exit . "×"))
+  "Symbols used to display OfflineIMAP status in mode-line.
+These are used when `offlineimap-mode-line-style' is set to
+`symbol'."
   :group 'offlineimap
-  :type 'string)
+  :type '(repeat (cons :tag "Use symbol for signal" (symbol :tag "Signal") (string :tag "Symbol"))))
 
 (defcustom offlineimap-mode-line-text "OfflineIMAP: "
   "Text used to display OfflineIMAP status in mode-line."
@@ -204,8 +206,11 @@ This is used when `offlineimap-mode-line-style' is set to 'symbol."
                          (offlineimap-propertize-face msg-type action
                                                       (if (eq offlineimap-mode-line-style 'text)
                                                           action
-                                                        offlineimap-mode-line-symbol)))
-                    (propertize (symbol-name status) 'face 'offlineimap-error-face)))
+                                                        (cdr (assoc 'run offlineimap-mode-line-symbols)))))
+                     (propertize (or (and (eq offlineimap-mode-line-style 'symbol)
+                                          (cdr (assoc status offlineimap-mode-line-symbols)))
+                                     (symbol-name status))
+                                 'face 'offlineimap-error-face)))
                  "]")
          'mouse-face 'mode-line-highlight
          'help-echo "mouse-2: Go to OfflineIMAP buffer"
