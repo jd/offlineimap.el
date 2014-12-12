@@ -66,7 +66,8 @@ action as a text in color instead of a single symbol."
                  (const :tag "Action text" text)))
 
 (defcustom offlineimap-mode-line-symbols '((run . "✉")
-                                           (exit . "×"))
+                                           (exit . "×")
+                                           (signal . "⚑"))
   "Symbols used to display OfflineIMAP status in mode-line.
 These are used when `offlineimap-mode-line-style' is set to
 `symbol'."
