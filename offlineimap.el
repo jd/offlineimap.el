@@ -1,6 +1,7 @@
 ;;; offlineimap.el --- Run OfflineIMAP from Emacs
 
 ;; Copyright (C) 2010 Julien Danjou
+;; Copyright (C) 2014 Benjamin Barenblat
 
 ;; Author: Julien Danjou <julien@danjou.info>
 ;; URL: http://julien.danjou.info/offlineimap-el.html
@@ -35,7 +36,7 @@
   :group 'offlineimap
   :type 'string)
 
-(defcustom offlineimap-command "offlineimap -u Machine.MachineUI"
+(defcustom offlineimap-command "offlineimap -u machineui"
   "Command to run to launch OfflineIMAP."
   :group 'offlineimap
   :type 'string)
