@@ -86,6 +86,12 @@ These are used when `offlineimap-mode-line-style' is set to
   :group 'offlineimap
   :type 'string)
 
+(defcustom offlineimap-auto-sync-every 0
+  "When set with a value different from zero, offlineimap will
+  resync the every `offlineimap-auto-sync-every' seconds"
+  :type 'number
+  :group 'offlineimap)
+
 (defcustom offlineimap-timestamp nil
   "Timestamp to add at the beginning of each OffsyncIMAP line."
   :type 'string
@@ -168,6 +174,9 @@ These are used when `offlineimap-mode-line-style' is set to
   '((t (:foreground "red" :weight bold)))
   "Face used to highlight status when offlineimap is stopped."
   :group 'offlineimap)
+
+(defvar offlineimap-timer nil
+  "Offlineimap timer see `offlineimap-auto-sync-every'")
 
 (defvar offlineimap-mode-line-string nil
   "Variable showed in mode line to display OfflineIMAP status.")
@@ -285,13 +294,16 @@ These are used when `offlineimap-mode-line-style' is set to
   "Start OfflineIMAP."
   (interactive)
   (let* ((buffer (offlineimap-make-buffer)))
-    (unless (get-buffer-process buffer)
-      (let ((process (start-process-shell-command
-                      "offlineimap"
-                      buffer
-                      offlineimap-command)))
-        (set-process-filter process 'offlineimap-process-filter)
-        (set-process-sentinel process 'offlineimap-process-sentinel))))
+    (if (and (not (= 0 offlineimap-auto-sync-every))
+	     (not offlineimap-timer))
+	(setq offlineimap-timer (run-at-time 1 offlineimap-auto-sync-every 'offlineimap))
+      (unless (get-buffer-process buffer)
+	(let ((process (start-process-shell-command
+			"offlineimap"
+			buffer
+			offlineimap-command)))
+	  (set-process-filter process 'offlineimap-process-filter)
+	  (set-process-sentinel process 'offlineimap-process-sentinel)))))
   (add-to-list 'global-mode-string '(:eval (offlineimap-mode-line)) t))
 
 (defun offlineimap-quit ()
