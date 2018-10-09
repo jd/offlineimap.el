@@ -96,6 +96,12 @@ These are used when `offlineimap-mode-line-style' is set to
   :type 'hook
   :group 'offlineimap)
 
+(defcustom offlineimap-inbox-folders (list "INBOX")
+  "List of inbox folder names.
+This is used to count the new emails."
+  :type '(repeat string)
+  :group 'offlineimap)
+
 (defvar offlineimap-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'offlineimap-quit)
@@ -246,6 +252,21 @@ These are used when `offlineimap-mode-line-style' is set to
                 (insert (format-time-string offlineimap-timestamp)))
               (insert text)
               (set-marker (process-mark process) (point)))))))))
+
+(defun offlineimap-new-email-count ()
+  "Return the number of new emails in current or last OfflineIMAP call."
+  (let ((buffer (get-buffer offlineimap-buffer-name))
+        (new-email-regexp (format "Folder\\+%s.*::copyingmessage$" (regexp-opt offlineimap-inbox-folders))))
+    (if (not buffer)
+        0
+      (with-current-buffer buffer
+        (save-excursion
+          (save-match-data
+            (goto-char (point-max))
+            (re-search-backward "^MainThread::protocol$" nil 'noerror)
+            (cl-loop
+             while (< (point) (point-max))
+             count (re-search-forward new-email-regexp nil 'noerror))))))))
 
 (defun offlineimap-process-filter (process msg)
   "Filter PROCESS output MSG."
